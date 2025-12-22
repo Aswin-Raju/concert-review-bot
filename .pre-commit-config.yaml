@@ -1,0 +1,15 @@
+# Pre-commit configuration to automatically run code quality checks (formatting, linting, imports) before each commit.
+
+repos:
+  # Ruff - fast linter and auto-fixer
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.4
+    hooks:
+      - id: ruff
+        name: Ruff - linter and auto-fix
+        language_version: python3.12
+        args: [ "--fix" ]
+
+      - id: ruff-format
+        name: Ruff - formatter
+
