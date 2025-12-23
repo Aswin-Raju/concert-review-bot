@@ -1,4 +1,3 @@
-# test_ruff_error.py
 
 import os, sys
 
