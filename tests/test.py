@@ -1,9 +1,3 @@
-
-import os, sys
-
-
-def add(a,b):
-  return a+b
-
-
-
+def add(a, b):
+    x = 10
+    return a + b
