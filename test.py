@@ -1,6 +1,5 @@
-print('Hello')
+import os
 
-# test.py
-def test_func():
-    unused = 5
-    a = 2 + 2
+def foo():
+    return 1
+    
