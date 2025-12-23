@@ -78,6 +78,16 @@ if [ $has_issues -eq 1 ]; then
         echo "Push cancelled. Fix the issues and try again."
         exit 1
     fi
+    
+    # Ask if user wants to post comments to PR
+    echo ""
+    read -p "Post review comments to GitHub PR? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo ""
+        echo "📤 Posting review comments to PR..."
+        python3 "$REPO_ROOT/scripts/post_pr_comments.py"
+    fi
 fi
 
 echo "✅ Proceeding with push..."
