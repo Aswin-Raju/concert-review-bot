@@ -1,5 +1,4 @@
-import os
+# test_ruff_error.py
 
-def foo():
-    return 1
-    
+def add(a,b):
+  return a+b
