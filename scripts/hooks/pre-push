@@ -1,0 +1,84 @@
+#!/bin/bash
+# Pre-push hook - runs before pushing to remote
+# Checks for review comments and displays them as a warning
+
+set -e
+
+echo "🔍 Checking for code review comments..."
+
+# Get the repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+REVIEW_DIR="$REPO_ROOT/.git/review-comments"
+
+# Check if review directory exists
+if [ ! -d "$REVIEW_DIR" ]; then
+    echo "✅ No review comments found"
+    exit 0
+fi
+
+# Get commits being pushed
+remote="$1"
+url="$2"
+
+# Read from stdin to get the refs being pushed
+has_issues=0
+while read local_ref local_sha remote_ref remote_sha
+do
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+        # Branch is being deleted, skip
+        continue
+    fi
+    
+    # Get list of commits being pushed
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        # New branch, check all commits
+        range="$local_sha"
+    else
+        # Existing branch, check new commits
+        range="$remote_sha..$local_sha"
+    fi
+    
+    # Check each commit for review comments
+    for commit in $(git rev-list "$range"); do
+        review_file="$REVIEW_DIR/${commit}.json"
+        if [ -f "$review_file" ]; then
+            echo ""
+            echo "⚠️  Found review comments for commit: $commit"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            
+            # Extract and display the comment
+            python3 -c "
+import json
+import sys
+
+try:
+    with open('$review_file', 'r') as f:
+        data = json.load(f)
+        print(data['comment'])
+except Exception as e:
+    print(f'Error reading review file: {e}')
+"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            has_issues=1
+        fi
+    done
+done
+
+if [ $has_issues -eq 1 ]; then
+    echo ""
+    echo "⚠️  WARNING: You are pushing commits with code quality issues!"
+    echo ""
+    echo "These issues will be visible in the PR review."
+    echo "Consider fixing them before pushing."
+    echo ""
+    read -p "Do you want to continue pushing? (y/N) " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Push cancelled. Fix the issues and try again."
+        exit 1
+    fi
+fi
+
+echo "✅ Proceeding with push..."
+exit 0

@@ -5,3 +5,6 @@ pytest-cov>=4.1.0
 # Code quality tools
 ruff>=0.14.4
 pre-commit>=3.6.0
+
+# Review bot dependencies
+requests>=2.31.0

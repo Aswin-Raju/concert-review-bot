@@ -1,0 +1,28 @@
+#!/bin/bash
+# Post-commit hook - runs after a commit is made
+# Executes code quality checks and saves review comments
+
+set -e
+
+echo "🚀 Running post-commit checks..."
+
+# Get the repository root
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# Run the review bot
+python3 "$REPO_ROOT/scripts/review_bot.py"
+
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+    echo ""
+    echo "⚠️  Code quality checks failed!"
+    echo "Review comments have been saved for this commit."
+    echo ""
+    echo "To view the review:"
+    echo "  cat .git/review-comments/\$(git rev-parse HEAD).json"
+    echo ""
+    echo "Note: You can still push, but the PR will show these issues."
+fi
+
+exit 0
