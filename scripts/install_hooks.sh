@@ -13,6 +13,12 @@ SCRIPTS_HOOKS_DIR="$REPO_ROOT/scripts/hooks"
 # Create hooks directory if it doesn't exist
 mkdir -p "$GIT_HOOKS_DIR"
 
+# Disable pre-commit if it exists
+if [ -f "$GIT_HOOKS_DIR/pre-commit" ]; then
+    echo "🔄 Disabling existing pre-commit hook..."
+    mv "$GIT_HOOKS_DIR/pre-commit" "$GIT_HOOKS_DIR/pre-commit.disabled" 2>/dev/null || true
+fi
+
 # Install post-commit hook
 echo "📝 Installing post-commit hook..."
 cp "$SCRIPTS_HOOKS_DIR/post-commit" "$GIT_HOOKS_DIR/post-commit"
@@ -37,6 +43,9 @@ echo "Installed hooks:"
 echo "  • post-commit: Runs code quality checks after each commit"
 echo "  • pre-push: Warns about code issues before pushing"
 echo ""
+echo "Disabled hooks:"
+echo "  • pre-commit: Moved to pre-commit.disabled (if existed)"
+echo ""
 echo "How it works:"
 echo "  1. After each commit, code quality checks run automatically"
 echo "  2. Issues are saved as review comments"
@@ -45,5 +54,8 @@ echo "  4. You can choose to fix issues or push anyway"
 echo ""
 echo "To uninstall hooks, run:"
 echo "  rm .git/hooks/post-commit .git/hooks/pre-push"
+echo ""
+echo "To re-enable pre-commit hook (if needed):"
+echo "  mv .git/hooks/pre-commit.disabled .git/hooks/pre-commit"
 echo ""
 
